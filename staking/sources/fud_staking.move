@@ -84,6 +84,16 @@ public struct UpdateLockPeriodEvent has store, copy, drop {
     lock_period: u64,
 }
 
+public struct AddPoolEvent has store, copy, drop {
+    rewards_per_second: u64,
+    lock_period: u64,
+    index: u64,
+}
+
+public struct UpdateStartTimestampEvent has store, copy, drop {
+    start_timestamp: u64,
+}
+
 // === Initializers === 
 
 fun init(ctx: &mut TxContext) {
@@ -155,7 +165,7 @@ public fun unstake(
 ): Coin<FUD> {
     let now = timestamp_s(clock);
 
-    assert!(account.initial_time + farm.pools[account.pool_index].lock_period >= now, LockPeriodNotOver);
+    assert!(now >=account.initial_time + farm.pools[account.pool_index].lock_period, LockPeriodNotOver);
 
     update(farm, now, account.pool_index);
 
@@ -263,6 +273,18 @@ public fun pending_rewards(
 
 // === Admin Functions === 
 
+public fun update_start_timestamp(
+    farm: &mut Farm,
+    _: &AuthWitness,
+    start_timestamp: u64
+) {
+    farm.start_timestamp = start_timestamp;
+
+    emit(UpdateStartTimestampEvent {
+        start_timestamp
+    });
+}
+
 public fun add_pool(
     farm: &mut Farm,
     _: &AuthWitness,
@@ -276,6 +298,12 @@ public fun add_pool(
         total_staked_fud: 0,
         lock_period
     };
+
+    emit(AddPoolEvent {
+        rewards_per_second,
+        lock_period,
+        index: farm.pools.length()
+    });
     
     farm.pools.push_back(pool);
 }
@@ -362,7 +390,7 @@ fun calculate_accrued_rewards_per_share(
         (timestamp_delta as u256)
     );
 
-    let reward = min_u256(total_reward_value, rewards_per_second * timestamp_delta);
+    let reward = min(total_reward_value, rewards_per_second * timestamp_delta);
 
     last_accrued_rewards_per_share + ((reward * FUD_DECIMALS_SCALAR) / total_staked_token)
 }
@@ -388,11 +416,7 @@ fun calculate_reward_debt(
 
 // === Math === 
 
-public fun min(a: u64, b: u64): u64 {
-    if (a < b) a else b
-}
-
-public fun min_u256(a: u256, b: u256): u256 {
+fun min(a: u256, b: u256): u256 {
     if (a < b) a else b
 }
 
