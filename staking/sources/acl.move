@@ -137,7 +137,7 @@ public fun start_super_admin_transfer(super_admin: &mut SuperAdmin, new_admin: a
 
 public use fun finish_super_admin_transfer as SuperAdmin.finish_transfer;
 public fun finish_super_admin_transfer(mut super_admin: SuperAdmin, ctx: &mut TxContext) {
-    assert!(ctx.epoch() > super_admin.start + THREE_EPOCHS, InvalidEpoch);
+    assert!(ctx.epoch() > super_admin.start + THREE_EPOCHS && super_admin.start != 0, InvalidEpoch);
 
     let new_admin = super_admin.new_admin; 
     super_admin.new_admin = @0x0;

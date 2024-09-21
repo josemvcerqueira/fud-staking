@@ -165,7 +165,7 @@ public fun unstake(
 ): Coin<FUD> {
     let now = timestamp_s(clock);
 
-    assert!(now >=account.initial_time + farm.pools[account.pool_index].lock_period, LockPeriodNotOver);
+    assert!(now >= account.initial_time + farm.pools[account.pool_index].lock_period, LockPeriodNotOver);
 
     update(farm, now, account.pool_index);
 
