@@ -186,6 +186,54 @@ public fun unstake(
 
 // === Public View Functions === 
 
+public fun staked(account: &Account):u64 {
+    account.staked.value()
+}
+
+public fun reward_debt(account: &Account): u256 {
+    account.reward_debt
+}
+
+public fun initial_time(account: &Account): u64 {
+    account.initial_time
+}
+
+public fun pool_index(account: &Account): u64 {
+    account.pool_index
+}
+
+public fun rewards_per_second(farm: &Farm, pool_index: u64): u64 {
+    farm.pools[pool_index].rewards_per_second
+}
+
+public fun lock_period(farm: &Farm, pool_index: u64): u64 {
+    farm.pools[pool_index].lock_period
+}
+
+public fun total_staked_fud(farm: &Farm, pool_index: u64): u64 {
+    farm.pools[pool_index].total_staked_fud
+}
+
+public fun accrued_rewards_per_share(farm: &Farm, pool_index: u64): u256 {
+    farm.pools[pool_index].accrued_rewards_per_share
+}
+
+public fun last_reward_update(farm: &Farm, pool_index: u64): u64 {
+    farm.pools[pool_index].last_reward_update
+}
+
+public fun start_timestamp(farm: &Farm): u64 {
+    farm.start_timestamp
+}
+
+public fun fud_rewards(farm: &Farm): u64 {
+    farm.fud_rewards.value()
+}
+
+public fun total_pools(farm: &Farm): u64 {
+    farm.pools.length()
+}
+
 public fun pending_rewards(
     farm: &Farm,
     clock: &Clock,
@@ -345,4 +393,11 @@ public fun min(a: u64, b: u64): u64 {
 
 public fun min_u256(a: u256, b: u256): u256 {
     if (a < b) a else b
+}
+
+// === Test Functions === 
+
+#[test_only]
+public fun init_for_testing(ctx: &mut TxContext) {
+    init(ctx);
 }

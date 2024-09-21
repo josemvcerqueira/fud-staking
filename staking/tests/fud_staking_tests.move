@@ -1,19 +1,60 @@
-/*
 #[test_only]
-module fud_staking::fud_staking_tests {
-    // uncomment this line to import the module
-    // use fud_staking::fud_staking;
+module fud_staking::fud_staking_tests;
 
-    const ENotImplemented: u64 = 0;
+use sui::{
+    clock::{Self, Clock},
+    test_utils::{assert_eq, destroy},
+    test_scenario::{Self as ts, Scenario},
+};
 
-    #[test]
-    fun test_fud_staking() {
-        // pass
-    }
+use fud_staking::{
+    fud_staking::{Self, Farm},
+    acl::{Self, SuperAdmin, Admin, ACL},
+};
 
-    #[test, expected_failure(abort_code = ::fud_staking::fud_staking_tests::ENotImplemented)]
-    fun test_fud_staking_fail() {
-        abort ENotImplemented
+const OWNER: address = @0x0;
+
+public struct World {
+    clock: Clock,
+    farm: Farm,
+    acl: ACL,
+    admin: Admin,
+    scenario: Scenario,
+    super_admin: SuperAdmin,
+}
+
+#[test]
+fun test_stake() {
+    let world = new_world(); 
+
+    world.end()
+}
+
+fun new_world(): World {
+    let mut scenario = ts::begin(OWNER);
+
+    let clock = clock::create_for_testing(scenario.ctx());
+    
+    acl::init_for_testing(scenario.ctx());
+    fud_staking::init_for_testing(scenario.ctx());
+
+    scenario.next_tx(OWNER);
+
+    let farm = scenario.take_shared<Farm>();
+    let mut acl = scenario.take_shared<ACL>();
+    let super_admin = scenario.take_from_sender<SuperAdmin>();
+    let admin = acl.new(&super_admin, scenario.ctx());
+
+    World {
+        scenario,
+        clock,
+        farm,
+        acl,
+        super_admin,
+        admin,
     }
 }
-*/
+
+fun end(world: World) {
+    destroy(world);
+}
