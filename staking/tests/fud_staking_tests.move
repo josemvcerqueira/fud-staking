@@ -33,7 +33,7 @@ public struct World {
     acl: ACL,
     admin: Admin,
     scenario: Scenario,
-    super_admin: SuperAdmin,
+    super_admin: vector<SuperAdmin>,
 }
 
 #[test]
@@ -137,6 +137,51 @@ fun test_end_to_end() {
 
     world.end();
 }
+
+#[test]
+fun test_act_super_admin_transfer() {
+    let mut world = new_world();
+    
+world.super_admin[0].start_transfer(BOB, world.scenario.ctx());
+
+    let super_admin = world.super_admin.pop_back(); 
+
+    world.scenario.next_epoch(OWNER);
+    world.scenario.next_epoch(OWNER);
+    world.scenario.next_epoch(OWNER);
+    world.scenario.next_epoch(OWNER);
+
+    super_admin.finish_transfer(world.scenario.ctx());
+    
+    world.end();
+}
+
+#[test]
+#[expected_failure]
+fun test_acl_super_admin_transfer_error_case() {
+    let mut world = new_world();
+
+    world.super_admin[0].start_transfer(BOB, world.scenario.ctx());
+    
+    let super_admin = world.super_admin.pop_back(); 
+
+    super_admin.finish_transfer(world.scenario.ctx());
+    
+    world.end();
+}
+
+#[test]
+#[expected_failure]
+fun test_acl_super_admin_transfer_error_case_2() {
+    let mut world = new_world();
+    
+    let super_admin = world.super_admin.pop_back(); 
+
+    super_admin.finish_transfer(world.scenario.ctx());
+    
+    world.end();
+}
+
 
 #[test]
 #[expected_failure]
@@ -244,7 +289,7 @@ fun new_world(): World {
         clock,
         farm,
         acl,
-        super_admin,
+        super_admin: vector[super_admin],
         admin,
     }
 }

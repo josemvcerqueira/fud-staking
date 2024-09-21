@@ -10,6 +10,8 @@ use sui::{
 
 // @dev Each epoch is roughly 1 day
 const THREE_EPOCHS: u64 = 3;
+// @dev Sentinel value for SuperAdmin.start
+const MAX_U64: u64 = 0xFFFFFFFFFFFFFFFF;
 
 // === Errors === 
 
@@ -63,7 +65,7 @@ fun init(ctx: &mut TxContext) {
     let super_admin = SuperAdmin {
         id: object::new(ctx),
         new_admin: @0x0,
-        start: 0
+        start: MAX_U64
     };
 
     let acl = ACL {
@@ -137,11 +139,11 @@ public fun start_super_admin_transfer(super_admin: &mut SuperAdmin, new_admin: a
 
 public use fun finish_super_admin_transfer as SuperAdmin.finish_transfer;
 public fun finish_super_admin_transfer(mut super_admin: SuperAdmin, ctx: &mut TxContext) {
-    assert!(ctx.epoch() > super_admin.start + THREE_EPOCHS && super_admin.start != 0, InvalidEpoch);
+    assert!(ctx.epoch() > super_admin.start + THREE_EPOCHS, InvalidEpoch);
 
     let new_admin = super_admin.new_admin; 
     super_admin.new_admin = @0x0;
-    super_admin.start = 0;
+    super_admin.start = MAX_U64;
 
     transfer::transfer(super_admin, new_admin);
 
