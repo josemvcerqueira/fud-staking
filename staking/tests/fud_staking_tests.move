@@ -138,6 +138,81 @@ fun test_end_to_end() {
     world.end();
 }
 
+#[test]
+#[expected_failure]
+fun test_unstake_before_lock_period() {
+    let mut world = new_world();
+
+    world.setup_pools();
+
+    world.scenario.next_tx(ALICE); 
+
+    let clock = &world.clock; 
+
+    let alice_account = world.farm.stake(
+        clock, 
+        mint_for_testing(2 * ONE_FUD, world.scenario.ctx()), 
+        0, 
+        world.scenario.ctx()
+    );
+
+    world.clock.increment_for_testing(DAY - 1);
+
+    let clock = &world.clock;
+
+    let total_fud = world.farm.unstake(clock, alice_account, world.scenario.ctx());
+
+    burn_for_testing(total_fud);
+
+    world.end();
+}
+
+#[test]
+#[expected_failure]
+fun test_stake_zero_fud() {
+    let mut world = new_world();
+
+    world.setup_pools();
+
+    world.scenario.next_tx(ALICE); 
+
+    let clock = &world.clock; 
+
+    let alice_account = world.farm.stake(
+        clock, 
+        mint_for_testing(0, world.scenario.ctx()), 
+        0, 
+        world.scenario.ctx()
+    );
+
+    destroy(alice_account);
+
+    world.end();
+}
+
+#[test]
+#[expected_failure]
+fun test_stake_on_unbound_pool() {
+    let mut world = new_world();
+
+    world.setup_pools();
+
+    world.scenario.next_tx(ALICE); 
+
+    let clock = &world.clock; 
+
+    let alice_account = world.farm.stake(
+        clock, 
+        mint_for_testing(ONE_FUD, world.scenario.ctx()), 
+        3, 
+        world.scenario.ctx()
+    );
+
+    destroy(alice_account);
+
+    world.end();
+}
+
 fun setup_pools(world: &mut World) {
     let auth_witness = world.acl.sign_in(&world.admin);
 
