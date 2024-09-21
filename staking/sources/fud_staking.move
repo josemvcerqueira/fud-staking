@@ -216,7 +216,7 @@ public fun pending_rewards(
 
 public fun add_pool(
     farm: &mut Farm,
-    _: AuthWitness,
+    _: &AuthWitness,
     rewards_per_second: u64,
     lock_period: u64
 ) {
@@ -234,7 +234,7 @@ public fun add_pool(
 public fun update_rewards_per_second(
     farm: &mut Farm,
     clock: &Clock,
-    _: AuthWitness,
+    _: &AuthWitness,
     pool_index: u64,
     rewards_per_second: u64,
 ) {
@@ -253,7 +253,7 @@ public fun update_rewards_per_second(
 public fun update_lock_period(
     farm: &mut Farm,
     clock: &Clock,
-    _: AuthWitness,
+    _: &AuthWitness,
     pool_index: u64,
     lock_period: u64
 ) {
