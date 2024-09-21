@@ -16,6 +16,7 @@ use fud_staking::acl::AuthWitness;
 
 // @dev Fud has 5 decimals -> 10e5
 const FUD_DECIMALS_SCALAR: u256 = 100_000;
+const MAX_U64: u64 = 0xFFFFFFFFFFFFFFFF;
 
 // === Errors ===  
 
@@ -88,7 +89,7 @@ public struct UpdateLockPeriodEvent has store, copy, drop {
 fun init(ctx: &mut TxContext) {
     let farm = Farm {
         id: object::new(ctx),
-        start_timestamp: 0,
+        start_timestamp: MAX_U64,
         fud_rewards: balance::zero(),
         pools: vector[]
     };

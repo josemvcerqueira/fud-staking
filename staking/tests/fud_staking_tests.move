@@ -13,6 +13,12 @@ use fud_staking::{
 };
 
 const OWNER: address = @0x0;
+const MAX_U64: u64 = 0xFFFFFFFFFFFFFFFF;
+const DAY: u64 = 86400;
+
+const POOL1_REWARD_PER_SECOND: u64 = 100;
+const POOL2_REWARD_PER_SECOND: u64 = 200;
+const POOL3_REWARD_PER_SECOND: u64 = 300;
 
 public struct World {
     clock: Clock,
@@ -24,10 +30,22 @@ public struct World {
 }
 
 #[test]
-fun test_stake() {
+fun test_init() {
     let world = new_world(); 
 
+    assert_eq(world.farm.start_timestamp(), MAX_U64);
+    assert_eq(world.farm.fud_rewards(), 0);
+    assert_eq(world.farm.total_pools(), 0);
+
     world.end()
+}
+
+fun setup_pools(world: &mut World) {
+    let auth_witness = world.acl.sign_in(&world.admin);
+
+    world.farm.add_pool(&auth_witness, POOL1_REWARD_PER_SECOND, DAY);
+    world.farm.add_pool(&auth_witness, POOL2_REWARD_PER_SECOND, DAY * 2);
+    world.farm.add_pool(&auth_witness, POOL3_REWARD_PER_SECOND, DAY * 3);
 }
 
 fun new_world(): World {
